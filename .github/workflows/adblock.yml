@@ -1,15 +1,23 @@
-name: Download adblock source list
 
-on:
-  schedule:
-    - cron: 0 */12 * * *
-  workflow_dispatch:
+
+name: testttt
+
+on: push
 
 jobs:
-  build:
+  format-code:
     runs-on: ubuntu-latest
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          
       - name: adblock
         run: |
           echo "Downloading oisd big block list..."
@@ -17,6 +25,9 @@ jobs:
           awk '/^\*\./ && !x {print "# OpenClash AdBlock: https://github.com/multiitsa/clash-adblock \n\npayload:"; x=1} 1' oisd_big_domainswild.txt > oisd_big.yaml
           sed -i 's/^[*]\./  - DOMAIN-SUFFIX,/g' oisd_big.yaml
           rm -fr oisd_big.yaml e oisd_big_domainswild.txt
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Automatic update
+  
+      # Other steps that change files in the repository go here
+      # …
+
+      # Commit all changed files back to the repository
+      - uses: stefanzweifel/git-auto-commit-action@v5
